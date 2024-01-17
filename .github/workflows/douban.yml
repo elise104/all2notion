@@ -1,0 +1,25 @@
+name: Sync Douban Movie
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run your Node.js script
+      run: NOTION_TOKEN="${{secrets.NOTION_TOKEN}}" DATABASE_ID="${{secrets.DATABASE_ID}}" DB_BLOCK_LIST="${{secrets.DB_BLOCK_LIST}}" node ./src/scripts/douban.js
+

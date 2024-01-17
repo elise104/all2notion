@@ -5,8 +5,8 @@ const { Client } = require('@notionhq/client');
 const { convert2Notion } = require('./helper');
 
 const { DATABASE_ID, DB_UID } = process.env;
-const DB_MOVIE_LIST = (process.env.DB_MOVIE_LIST || '').split(',').map(i => i.trim());
-const DB_BLOCK_LIST = (process.env.DB_BLOCK_LIST || '').split(',').map(i => i.trim());
+const DB_MOVIE_LIST = (process.env.DB_MOVIE_LIST || '').split(',').filter(i=>i).map(i=>i.trim());
+const DB_BLOCK_LIST = (process.env.DB_BLOCK_LIST || '').split(',').filter(i=>i).map(i=>i.trim());
 
 const DB_MOVIE = 'https://movie.douban.com/subject/';
 // const DB_DRAMA = `https://www.douban.com/location/drama/`;
@@ -58,7 +58,7 @@ const parseItemHtml = (id, htmlStr) => {
 const syncItems = async (links, status = 'Backlog') => {
   for (const link of links) {
     const [, id] = link.match(/\/(\d+)/);
-    if (DB_BLOCK_LIST.includes(id)) {
+    if (!id || DB_BLOCK_LIST.includes(id)) {
       continue;
     }
     try {
