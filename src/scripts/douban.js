@@ -5,8 +5,6 @@ const { Client } = require('@notionhq/client');
 const { convert2Notion } = require('./helper');
 
 const { DATABASE_ID, DB_UID } = process.env;
-const DB_MOVIE_LIST = (process.env.DB_MOVIE_LIST || '').split(',').filter(i=>i).map(i=>i.trim());
-const DB_BLOCK_LIST = (process.env.DB_BLOCK_LIST || '').split(',').filter(i=>i).map(i=>i.trim());
 
 const DB_MOVIE = 'https://movie.douban.com/subject/';
 // const DB_DRAMA = `https://www.douban.com/location/drama/`;
@@ -14,6 +12,11 @@ const DB_MOVIE_TODO = `https://movie.douban.com/people/${DB_UID}/wish`;
 const DB_MOVIE_DONE = `https://movie.douban.com/people/${DB_UID}/collect`;
 // const DB_DRAMA_TODO = `https://www.douban.com/location/people/${DB_UID}/drama/wish`;
 // const DB_DRAMA_DONE = `https://www.douban.com/location/people/${DB_UID}/drama/collect`;
+
+const DB_MOVIE_LIST = (process.env.DB_MOVIE_LIST || '').replace(/\s/g, '');
+const DB_MOVIE_TODO_LIST = _.get(DB_MOVIE_LIST.match(/Todo:([\d,]+)/), '1', '').split(',').filter(i=>i).map(i=>`${DB_MOVIE}${i}`);
+const DB_MOVIE_DONE_LIST = _.get(DB_MOVIE_LIST.match(/Done:([\d,]+)/), '1', '').split(',').filter(i=>i).map(i=>`${DB_MOVIE}${i}`);
+const DB_BLOCK_LIST = (process.env.DB_BLOCK_LIST || '').replace(/\s/g, '').split(',').filter(i=>i);
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -87,6 +90,7 @@ const syncItems = async (links, status = 'Backlog') => {
         props["Completed"] = convert2Notion('date', new Date().toISOString());
         props["Status"] = convert2Notion('status', status);
         props["Locked"] = convert2Notion('checkbox', true);
+        props["Progress"] = convert2Notion('number', 100);
       }
       if (pageId) {
         await notion.pages.update({
@@ -118,8 +122,8 @@ const syncItems = async (links, status = 'Backlog') => {
 }
 
 (async () => {
-  const movieTodo = getLinksFromHtml(await getHtml(DB_MOVIE_TODO), 'MOVIE').concat(DB_MOVIE_LIST.map(i => `${DB_MOVIE}${i}`));
-  const movieDone = getLinksFromHtml(await getHtml(DB_MOVIE_DONE), 'MOVIE');
+  const movieTodo = getLinksFromHtml(await getHtml(DB_MOVIE_TODO)).concat(DB_MOVIE_TODO_LIST);
+  const movieDone = getLinksFromHtml(await getHtml(DB_MOVIE_DONE)).concat(DB_MOVIE_DONE_LIST);
   await syncItems(movieTodo);
   await syncItems(movieDone, 'Done');
   return;
