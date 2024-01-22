@@ -3,7 +3,7 @@ name: Sync Douban Movie
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 19 * * *'
+    - cron: '0 18 * * *'
 
 jobs:
   run-script:
@@ -22,5 +22,5 @@ jobs:
       run: npm install
 
     - name: Run your Node.js script
-      run: DB_UID="${{secrets.DB_UID}}" NOTION_TOKEN="${{secrets.NOTION_TOKEN}}" DATABASE_ID="${{secrets.DATABASE_ID_MOVIE}}" DB_BLOCK_LIST="${{secrets.DB_BLOCK_LIST}}" node ./src/scripts/douban.js
+      run: WEREAD_COOKIE="${{secrets.WEREAD_COOKIE}}" NOTION_TOKEN="${{secrets.NOTION_TOKEN}}" DATABASE_ID="${{secrets.DATABASE_ID_READ}}" node ./src/scripts/douban.js
 
