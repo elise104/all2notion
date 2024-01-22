@@ -1,4 +1,4 @@
-name: Sync Douban Movie
+name: Sync WeRead Notes
 
 on:
   workflow_dispatch:
